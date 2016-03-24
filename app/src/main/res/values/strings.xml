@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">SmartBrace</string>
+    <string name="hello_world">Hello world!</string>
+    <item name="action_settings" type="id">Settings</item>
 </resources>
