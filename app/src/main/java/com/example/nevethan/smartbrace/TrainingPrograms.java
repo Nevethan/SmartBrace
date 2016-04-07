@@ -22,7 +22,7 @@ public class TrainingPrograms extends AppCompatActivity {
             "Program 6"
         };
         ListAdapter listAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, programs);
-        ListView listview = (ListView) findViewById(R.id.addProgram);
+        ListView listview = (ListView) findViewById(R.id.listView2);
         listview.setAdapter(listAdapter);
     }
 }

@@ -15,13 +15,15 @@ public class Exercises extends AppCompatActivity {
     String[] web = {
             "Exercise 1",
             "Exercise 2",
-            "Exercise 5"
+            "Exercise 3"
     };
 
     Integer[] imageId = {
-            R.drawable.image1,
-            R.drawable.image2,
-            R.drawable.image3
+            R.drawable.bluetooth,
+            R.drawable.bluetooth,
+            R.drawable.bluetooth,
+            //R.drawable.image2,
+            //R.drawable.image3
     };
 
 

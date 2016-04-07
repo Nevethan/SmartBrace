@@ -26,7 +26,7 @@ public class Bluetooth extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_bluetooth);
 
         b1 = (Button) findViewById(R.id.button);
         b2=(Button)findViewById(R.id.button2);

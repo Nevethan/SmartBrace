@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/textview"
         android:textSize="35dp"
-        android:layout_above="@+id/button3"
+        android:layout_above="@+id/button2"
         android:layout_toRightOf="@+id/imageView"
         android:layout_toEndOf="@+id/imageView" />
 
@@ -23,7 +23,7 @@
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:id="@+id/imageView"
-        android:src="@drawable/image1"
+        android:src="@drawable/bluetooth"
         android:theme="@style/Base.TextAppearance.AppCompat"
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
@@ -33,11 +33,11 @@
         android:layout_height="wrap_content"
         android:text="Turn On"
         android:id="@+id/button"
-        android:layout_below="@+id/imageView"
-        android:layout_toStartOf="@+id/imageView"
-        android:layout_toLeftOf="@+id/imageView"
         android:clickable="true"
-        android:onClick="on" />
+        android:onClick="on"
+        android:layout_alignTop="@+id/button3"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
@@ -45,9 +45,7 @@
         android:text="Get visible"
         android:onClick="visible"
         android:id="@+id/button2"
-        android:layout_alignBottom="@+id/button"
-        android:layout_alignRight="@+id/button3"
-        android:layout_alignEnd="@+id/button3"
+        android:layout_below="@+id/imageView"
         android:layout_alignLeft="@+id/button3"
         android:layout_alignStart="@+id/button3" />
 
@@ -57,9 +55,9 @@
         android:text="List devices"
         android:onClick="list"
         android:id="@+id/button3"
-        android:layout_below="@+id/imageView"
-        android:layout_toRightOf="@+id/imageView"
-        android:layout_toEndOf="@+id/imageView" />
+        android:layout_below="@+id/button2"
+        android:layout_alignRight="@+id/textview"
+        android:layout_alignEnd="@+id/textview" />
 
     <Button
         android:layout_width="wrap_content"
@@ -76,8 +74,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/listView"
         android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/button"
-        android:layout_alignStart="@+id/button"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:layout_below="@+id/textView2" />
 
     <TextView
@@ -85,9 +83,10 @@
         android:layout_height="wrap_content"
         android:text="Paired devices:"
         android:id="@+id/textView2"
-        android:textColor="#ff34ff06"
+        android:textColor="#3079ab"
         android:textSize="25dp"
         android:layout_below="@+id/button4"
+        android:layout_alignParentLeft="true"
         android:layout_alignLeft="@+id/listView"
         android:layout_alignStart="@+id/listView" />
 </RelativeLayout>
