@@ -3,6 +3,8 @@ package com.example.nevethan.smartbrace;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -18,7 +20,7 @@ import java.util.UUID;
 public class BeginTraining extends AppCompatActivity  {
 
 
-    private BluetoothAdapter bluetotthAdapter;
+    private BluetoothAdapter bluetoothAdapter;
     private BluetoothSocket bluetoothSocket;
 
     private InputStream inputStream;
@@ -29,13 +31,30 @@ public class BeginTraining extends AppCompatActivity  {
     private static String macaddress = "30:15:01:22:03:92";
 
     private Thread thread;
+    /*
+    Handler mHandler = new Handler(){
+
+        public void handleMessage(Message message){
+            super.handleMessage(message);
+
+            switch(message.what){
+                case Bluetooth.SUCCESS_CONNECT:
+                    Toast.makeText(getApplicationContext(), "Ready to go", LENGTH.SHORT);
+                    Bluetooth.connectedThread.start();
+                    break;
+                case Bluetooth.MESSAGE_READ:
+                    listen();
+                    break;
+            }
+        }
+    };*/
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_begin_training);
-        bluetotthAdapter = BluetoothAdapter.getDefaultAdapter();
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BTState();
     }
 
@@ -54,7 +73,7 @@ public class BeginTraining extends AppCompatActivity  {
     public void onResume(){
         super.onResume();
 
-        BluetoothDevice bluetoothDevice = bluetotthAdapter.getRemoteDevice(macaddress);
+        BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(macaddress);
 
         try{
             bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID);
@@ -91,10 +110,10 @@ public class BeginTraining extends AppCompatActivity  {
                 buffer = new byte[1024];
 
                 int bytes = inputStream.read(buffer);
-                if(bytes > 0){
-                    TextView txtview = (TextView) findViewById(R.id.textView7);
-                    txtview.setText(bytes);
-                }
+                //if(bytes > 0){
+                TextView txtview = (TextView) findViewById(R.id.textView7);
+                txtview.setText(bytes);
+                //}
             }catch (IOException e){
                 displayExceptionMessage(e.getMessage());
             }
@@ -102,14 +121,14 @@ public class BeginTraining extends AppCompatActivity  {
     }
 
     public void BTState(){
-        if(bluetotthAdapter == null){
+        if(bluetoothAdapter == null){
             Toast.makeText(this,"BluetotthAdapter is unabled",Toast.LENGTH_SHORT).show();
         }else{
 
         }
     }
 
-
+/*
     private void sendData(String message) {
     byte[] msgBuffer = message.getBytes();
     try {
@@ -122,7 +141,7 @@ public class BeginTraining extends AppCompatActivity  {
         displayExceptionMessage("Fatal Error");
     }
  }
-
+*/
 
     public void displayExceptionMessage(String message){
         Toast.makeText(this, message,Toast.LENGTH_SHORT).show();
