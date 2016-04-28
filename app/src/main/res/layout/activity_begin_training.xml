@@ -9,15 +9,17 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.nevethan.smartbrace.BeginTraining">
 
-    <Button
+    <ToggleButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Begin Training"
-        android:id="@+id/button5"
+        android:textOff="Start Stream"
+        android:textOn="Start Stream"
+        android:id="@+id/tbStream"
+        android:checked="false"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="166dp"
-        android:onClick="begin" />
+        />
 
     <TextView
         android:layout_width="wrap_content"

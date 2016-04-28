@@ -41,11 +41,11 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
         }
     }
 
-    static Handler mhandler = new Handler() {
+    static Handler mHandler = new Handler() {
     };
 
     public static void getHandler(Handler handler){
-        mhandler = handler;
+        mHandler = handler;
     }
 
     static ConnectThread connectThread;
@@ -66,7 +66,7 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_bluetooth);
         init();
         if (btAdapter==null){
             Toast.makeText(getApplicationContext(), "No bluetooth detected", Toast.LENGTH_SHORT).show();
@@ -86,7 +86,7 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
         devicesArray = btAdapter.getBondedDevices();
         if(devicesArray.size() > 0){
             for(BluetoothDevice device: devicesArray){
-                pairedDevices.add(device.getName() + device.getAddress());
+                pairedDevices.add(device.getName());
             }
         }
     }
@@ -101,7 +101,7 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
         pairedDevices = new ArrayList<String>();
         filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         devices = new ArrayList<BluetoothDevice>();
-        receiver = new BroadcastReceiver() {
+        /*receiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String action = intent.getAction();
@@ -116,7 +116,7 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
                             break;
                         }
                     }
-                    listAdapter.add(device.getName()+" "+s+" "+"\n"+device.getAddress());
+                    listAdapter.add(device.getName()+" " +"\n"+device.getAddress());
 
                 }else if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)){
 
@@ -126,7 +126,7 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
                     Toast.makeText(getApplicationContext()," turn on Bluetooth", Toast.LENGTH_SHORT).show();
                 }
             }
-        };
+        };*/
     }
 /*
     protected void onPause() {
@@ -150,10 +150,11 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
         if (btAdapter.isDiscovering()){
             btAdapter.cancelDiscovery();
         }
-        if (listAdapter.getItem(arg2).contains("(Paired)")){
+        if (listAdapter.getItem(arg2) != null){
 
             BluetoothDevice selectedDevice = devices.get(arg2);
             ConnectThread connect = new ConnectThread(selectedDevice);
+            Toast.makeText(getApplicationContext(), "device Connected", Toast.LENGTH_SHORT).show();
             connect.start();
         }else {
             Toast.makeText(getApplicationContext(), "device is not paired", Toast.LENGTH_SHORT).show();
@@ -179,6 +180,32 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
         Intent getVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
         startActivityForResult(getVisible, 0);
     }
+
+
+    public void list(View v){
+        listAdapter.clear();
+        String s = "";
+
+        for(BluetoothDevice btDevice : devicesArray){
+            //for(int a=0;a<pairedDevices.size();a++){
+            if (btDevice.getName() != null){
+                //append
+                System.out.println(btDevice.getName());
+                s = "(Paired)";
+                System.out.println(s);
+            }
+                //System.out.println(pairedDevices.get(a) + "paired");
+
+            devices.add(btDevice);
+            listAdapter.add(btDevice.getName()+" " +"\n"+btDevice.getAddress());
+            Toast.makeText(getApplicationContext(),"Showing Paired Devices",Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
+
+
 
     private class ConnectThread extends Thread {
         private final BluetoothSocket mmSocket;
@@ -215,10 +242,10 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
                 return;
             }
 
-            Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_SHORT);
+            //Toast.makeText(getApplicationContext(),"Connected",Toast.LENGTH_SHORT);
 
             // Do work to manage the connection (in a separate thread)
-            mhandler.obtainMessage(SUCCESS_CONNECT, mmSocket).sendToTarget();
+            mHandler.obtainMessage(SUCCESS_CONNECT, mmSocket).sendToTarget();
         }
 
         /** Will cancel an in-progress connection, and close the socket */
@@ -269,14 +296,14 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
                     // Read from the InputStream
                     bytes = mmInStream.read(buffer);
                     // Send the obtained bytes to the UI activity
-                    mhandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                    mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer).sendToTarget();
                 } catch (IOException e) {
                     break;
                 }
             }
         }
 
-        /* Call this from the main activity to send data to the remote device 
+        //Call this from the main activity to send data to the remote device
         public void write(String income) {
 
             try {
@@ -290,7 +317,7 @@ public class Bluetooth extends AppCompatActivity implements AdapterView.OnItemCl
                     e.printStackTrace();
                 }
             } catch (IOException e) { }
-        }*/
+        }
 
         /* Call this from the main activity to shutdown the connection */
         public void cancel() {

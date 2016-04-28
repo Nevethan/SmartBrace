@@ -8,8 +8,12 @@ import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.webkit.ConsoleMessage;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ToggleButton;
+
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +21,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 
-public class BeginTraining extends AppCompatActivity  {
+public class BeginTraining extends AppCompatActivity implements ToggleButton.OnClickListener  {
 
 
     private BluetoothAdapter bluetoothAdapter;
@@ -31,7 +35,7 @@ public class BeginTraining extends AppCompatActivity  {
     private static String macaddress = "30:15:01:22:03:92";
 
     private Thread thread;
-    /*
+
     Handler mHandler = new Handler(){
 
         public void handleMessage(Message message){
@@ -39,16 +43,47 @@ public class BeginTraining extends AppCompatActivity  {
 
             switch(message.what){
                 case Bluetooth.SUCCESS_CONNECT:
-                    Toast.makeText(getApplicationContext(), "Ready to go", LENGTH.SHORT);
+                    Bluetooth.connectedThread = new Bluetooth.ConnectedThread((BluetoothSocket)message.obj);
+                    Toast.makeText(getApplicationContext(), "Ready to go", Toast.LENGTH_SHORT).show();
                     Bluetooth.connectedThread.start();
                     break;
                 case Bluetooth.MESSAGE_READ:
-                    listen();
-                    break;
+                    //listen();
+                    //Reading the data here. Tjek Sublime
+
+                    try{
+                        byte[] readBuffer = (byte[]) message.obj;
+                        String incom = new String(readBuffer, 0,5);
+
+                        TextView txtview = (TextView) findViewById(R.id.textView7);
+                        //int bytes = inputStream.read(readBuffer);
+                        if(readBuffer != null){
+                            if(isFloatNumber(incom)){
+
+                                txtview.setText(incom);
+                            }
+                        }
+                    }catch (Exception e){
+                        displayExceptionMessage(e.getMessage());
+                    }
             }
         }
-    };*/
+    };
 
+    public boolean isFloatNumber(String num){
+        try{
+            Double.parseDouble(num);
+        }catch (NumberFormatException e)
+        {
+            return false;
+        }
+        return true;
+    }
+
+
+    static boolean Stream;
+
+    ToggleButton tbStream;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,21 +91,64 @@ public class BeginTraining extends AppCompatActivity  {
         setContentView(R.layout.activity_begin_training);
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         BTState();
+        Bluetooth.getHandler(mHandler);
+
+        ButtonInit();
+
+        Stream = true;
     }
 
-    public void begin(View view){
+    public void ButtonInit() {
+        tbStream = (ToggleButton) findViewById(R.id.tbStream);
+        tbStream.setOnClickListener(this);
+    }
+
+    public void onClick(View v){
+        switch(v.getId()){
+            case R.id.tbStream:
+                if(tbStream.isChecked()) {
+                    if (Bluetooth.connectedThread != null) {
+                        Bluetooth.connectedThread.write("0");
+                    }
+                }else{
+                    if(Bluetooth.connectedThread != null){
+                        Bluetooth.connectedThread.write("1");
+                        }
+                    }
+                break;
+                }
+
+        }
+
+
+    /*public void begin(View view){
+        System.out.println("Its running");
         Runnable runnable = new Runnable(){
 
             @Override
             public void run() {
-                listen();
+                while(true){
+                    thread.start();
+                    try{
+                        byte buffer[];
+                        buffer = new byte[1024];
+
+                        int bytes = inputStream.read(buffer);
+                        //if(bytes > 0){
+                        TextView txtView = (TextView) findViewById(R.id.textView7);
+                        txtView.setText(bytes);
+                        //}
+                    }catch (IOException e){
+                        displayExceptionMessage(e.getMessage());
+                    }
+                }
             }
         };
         thread = new Thread(runnable);
 
-    }
+    }*/
 
-    public void onResume(){
+    /*public void onResume(){
         super.onResume();
 
         BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(macaddress);
@@ -99,8 +177,8 @@ public class BeginTraining extends AppCompatActivity  {
         }catch(IOException e){
             displayExceptionMessage(e.getMessage());
         }
-    }
-
+    }*/
+/*
     public void listen(){
 
         while(true){
@@ -111,20 +189,20 @@ public class BeginTraining extends AppCompatActivity  {
 
                 int bytes = inputStream.read(buffer);
                 //if(bytes > 0){
-                TextView txtview = (TextView) findViewById(R.id.textView7);
-                txtview.setText(bytes);
+                    TextView txtview = (TextView) findViewById(R.id.textView7);
+                    txtview.setText(bytes);
                 //}
             }catch (IOException e){
                 displayExceptionMessage(e.getMessage());
             }
         }
-    }
+    }*/
 
     public void BTState(){
         if(bluetoothAdapter == null){
-            Toast.makeText(this,"BluetotthAdapter is unabled",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"BluetoothAdapter is unabled",Toast.LENGTH_SHORT).show();
         }else{
-
+            Toast.makeText(this,"BluetoothAdapter is Active",Toast.LENGTH_SHORT).show();
         }
     }
 
