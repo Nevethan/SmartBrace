@@ -24,9 +24,10 @@ tools:context="com.example.nevethan.smartbrace.Options">
     android:textAppearance="?android:attr/textAppearanceMedium"
     android:text="Options"
     android:id="@+id/textView4"
-    android:layout_above="@+id/beginTraining"
+    android:layout_below="@+id/textView3"
     android:layout_alignParentLeft="true"
-    android:layout_alignParentStart="true" />
+    android:layout_alignParentStart="true"
+    android:layout_marginTop="40dp" />
 
 <Button
     android:layout_width="300dp"
@@ -34,9 +35,11 @@ tools:context="com.example.nevethan.smartbrace.Options">
     android:text="Begin Training"
     android:id="@+id/beginTraining"
     android:onClick="beginTraining"
-    android:layout_below="@+id/imageButton"
+    android:layout_below="@+id/textView4"
     android:layout_alignLeft="@+id/trainingPrograms"
-    android:layout_alignStart="@+id/trainingPrograms" />
+    android:layout_alignStart="@+id/trainingPrograms"
+    android:layout_marginTop="40dp"
+    android:background="@android:color/holo_blue_light"/>
 
 
 <Button
@@ -44,21 +47,22 @@ tools:context="com.example.nevethan.smartbrace.Options">
     android:layout_height="50dp"
     android:text="Training Programs"
     android:id="@+id/trainingPrograms"
+    android:onClick="viewPrograms"
     android:layout_centerVertical="true"
     android:layout_centerHorizontal="true"
-    android:layout_below="@id/beginTraining"
-    android:layout_marginTop="70dp"
-    android:onClick="viewPrograms"/>
+    android:layout_marginTop="40dp"
+    android:background="@android:color/holo_blue_light"/>
 
 <Button
     android:layout_width="300dp"
     android:layout_height="50dp"
     android:text="View of Exercises"
     android:id="@+id/exercises"
+    android:onClick="viewExercises"
     android:layout_below="@+id/trainingPrograms"
     android:layout_centerHorizontal="true"
-    android:layout_marginTop="70dp"
-    android:onClick="viewExercises" />
+    android:layout_marginTop="42dp"
+    android:background="@android:color/holo_blue_light"/>
 
 <Button
     android:layout_width="150dp"
@@ -67,16 +71,12 @@ tools:context="com.example.nevethan.smartbrace.Options">
     android:layout_centerVertical="true"
     android:id="@+id/logout"
     android:layout_alignParentBottom="true"
-    android:layout_centerHorizontal="true" />
+    android:layout_centerHorizontal="true"
+    android:onClick="logout"
+    android:background="@android:color/holo_red_dark"
+    android:textColor="@android:color/white"
+    />
 
-<ImageButton
-    android:layout_width="100dp"
-    android:layout_height="100dp"
-    android:id="@+id/imageButton"
-    android:layout_below="@+id/textView3"
-    android:layout_toRightOf="@+id/logout"
-    android:layout_toEndOf="@+id/logout"
-    android:src="@drawable/bluetooth"
-    android:onClick="toBluetooth" />
+
 
 </RelativeLayout>

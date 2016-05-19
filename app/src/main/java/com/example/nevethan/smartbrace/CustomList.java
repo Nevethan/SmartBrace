@@ -9,15 +9,18 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+/*
+    The class for the Custom List.
+ */
 class CustomList extends ArrayAdapter<String>{
 
     //private final Activity context;
-    private final String[] web;
+    private final String[] titles;
     private final Integer[] imageId;
 
     public CustomList(Context context, String[] web, Integer[] imageId) {
         super(context, R.layout.customlist, web);
-        this.web = web;
+        this.titles = web;
         this.imageId = imageId;
     }
 
@@ -26,11 +29,10 @@ class CustomList extends ArrayAdapter<String>{
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
         View row = layoutInflater.inflate(R.layout.customlist, parent, false);
 
-
         TextView title = (TextView) row.findViewById(R.id.textView6);
 
         ImageView imgView = (ImageView) row.findViewById(R.id.img);
-        title.setText(web[position]);
+        title.setText(titles[position]);
 
         imgView.setImageResource(imageId[position]);
         return row;

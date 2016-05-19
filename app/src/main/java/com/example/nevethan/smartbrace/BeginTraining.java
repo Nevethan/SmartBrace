@@ -1,14 +1,25 @@
 package com.example.nevethan.smartbrace;
 
+import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.media.Image;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.webkit.ConsoleMessage;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -20,211 +31,212 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
+/*
+    This class uses the two classes for Bluetooth communication inorder to stream realtime data from the specific device.
+    The device to connected through its MacAddress.
+ */
+public class BeginTraining extends Activity {
 
-public class BeginTraining extends AppCompatActivity implements ToggleButton.OnClickListener  {
+    private static final Boolean D = true;
+    private static final String TAG = "BeginTraining";
+
+    private EditText editText = null;
+    private TextView textView;
+    private int editText_lines = 0;
+
+    private BtBroadcastReceiver btMultiResponseReceiver = null;
+    private IntentFilter multiFilter = null;
+
+    private static final String BT_DEVICE_MAC = "30:15:01:22:03:92";
+    private static final int BT_DEVICE_ID = 1;
+
+    ToggleButton tbStream;
+
+    private BtServerThread btServer;
+    private BtConnectThread btClient;
 
 
-    private BluetoothAdapter bluetoothAdapter;
-    private BluetoothSocket bluetoothSocket;
+    Boolean isConnected = false;
 
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    Button btStand, btSit;
 
-    private static final UUID MY_UUID = UUID.fromString("00000000-0000-1000-8000-00805F9B34F");
+    int click1 = 0;
+    int click2 = 0;
 
-    private static String macaddress = "30:15:01:22:03:92";
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (D) Log.d(TAG, "On Create");
 
-    private Thread thread;
+        setContentView(R.layout.activity_begin_training);
 
-    Handler mHandler = new Handler(){
+        /*
+            This part of the class had to be commented inorder for you to see the Activity. Otherwise it will have given
+            an exception because of no bluetooth device. WATCH THE VIDEO
+         */
+        this.btClient = new BtConnectThread(getApplicationContext(), BT_DEVICE_MAC, 1);
+        this.btServer = new BtServerThread(this, 1);
 
-        public void handleMessage(Message message){
-            super.handleMessage(message);
+        editText = (EditText) findViewById(R.id.editText);
+        editText.setEnabled(false);
 
-            switch(message.what){
-                case Bluetooth.SUCCESS_CONNECT:
-                    Bluetooth.connectedThread = new Bluetooth.ConnectedThread((BluetoothSocket)message.obj);
-                    Toast.makeText(getApplicationContext(), "Ready to go", Toast.LENGTH_SHORT).show();
-                    Bluetooth.connectedThread.start();
-                    break;
-                case Bluetooth.MESSAGE_READ:
-                    //listen();
-                    //Reading the data here. Tjek Sublime
+        /*
+            The implementation of the class is set up so that when this activity is created, the connection to the Bluetooth is runned.
+            Therefore, inorder to open the activity, We have outcommented the next line. This activity will not perform its purpose
+            without the device. (Demonstration can be showed at the exam.)
+          */
+        btClient.connect();
 
-                    try{
-                        byte[] readBuffer = (byte[]) message.obj;
-                        String incom = new String(readBuffer, 0,5);
+        tbStream = (ToggleButton) findViewById(R.id.tbStream);
+        tbStream.setOnClickListener(onClickListener);
+        tbStream.setEnabled(false);
 
-                        TextView txtview = (TextView) findViewById(R.id.textView7);
-                        //int bytes = inputStream.read(readBuffer);
-                        if(readBuffer != null){
-                            if(isFloatNumber(incom)){
+        btStand = (Button) findViewById(R.id.standUp);
+        btSit = (Button) findViewById(R.id.sit);
 
-                                txtview.setText(incom);
-                            }
-                        }
-                    }catch (Exception e){
-                        displayExceptionMessage(e.getMessage());
-                    }
+
+        //Data send back to the device to calibrate the receiving data.
+        //Acton: Tell the device to be set on 0 degrees
+        btStand.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String s = "0";
+
+                btClient.write(s);
+                click1 = 1;
+                Toast.makeText(getApplicationContext(),"Send 0 to arduino", Toast.LENGTH_SHORT).show();
             }
-        }
-    };
+        });
 
-    public boolean isFloatNumber(String num){
-        try{
-            Double.parseDouble(num);
-        }catch (NumberFormatException e)
-        {
-            return false;
-        }
+        //Action: Tell the device to be set on 90 degrees
+        btSit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String s ="1";
+
+                btClient.write(s);
+                click2 = 1;
+                Toast.makeText(getApplicationContext(),"Send 1 to arduino",Toast.LENGTH_SHORT).show();
+                tbStream.setEnabled(true);
+            }
+        });
+        //Broadcast Receiver Setup
+        btMultiResponseReceiver = new BtBroadcastReceiver();
+        multiFilter = new IntentFilter(BtConnectThread.BT_NEW_DATA_INTENT);
+
+        editText.setText("Bluetooth MacAddress: " + BT_DEVICE_MAC );
+
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (D) Log.d(TAG, "++ On Start ++");
+        System.out.print(BT_DEVICE_MAC);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (D) Log.d(TAG, "+ On Resume +");
+        registerReceiver(btMultiResponseReceiver, multiFilter);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (D) Log.d(TAG, "- On Pause -");
+        unregisterReceiver(btMultiResponseReceiver);
+    }
+
+
+    @Override
+    protected void onStop() {
+        if (D) Log.d(TAG, "-- On Stop --");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (D) Log.d(TAG, "--- On Destroy ---");
+        if (btClient != null) btClient.disconnect();
+    }
+
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        if (D) Log.d(TAG, "+ On Restore Instance State +");
+        super.onRestoreInstanceState(savedInstanceState);
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (D) Log.d(TAG, "- On Save Instance State -");
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
 
 
-    static boolean Stream;
+    //onClick actions for the toggle button. Including the conditions
+    View.OnClickListener onClickListener = new View.OnClickListener() {
 
-    ToggleButton tbStream;
+        @Override
+        public void onClick(View v) {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_begin_training);
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        BTState();
-        Bluetooth.getHandler(mHandler);
+            switch (v.getId()) {
 
-        ButtonInit();
+                case R.id.tbStream:
+                    if (((ToggleButton) v).isChecked()) {
+                        editText.append("Enabled");
 
-        Stream = true;
-    }
-
-    public void ButtonInit() {
-        tbStream = (ToggleButton) findViewById(R.id.tbStream);
-        tbStream.setOnClickListener(this);
-    }
-
-    public void onClick(View v){
-        switch(v.getId()){
-            case R.id.tbStream:
-                if(tbStream.isChecked()) {
-                    if (Bluetooth.connectedThread != null) {
-                        Bluetooth.connectedThread.write("0");
+                    } else {
+                        editText.append("Disabled. Greate Work :)");
+                        btClient.disconnect();
                     }
-                }else{
-                    if(Bluetooth.connectedThread != null){
-                        Bluetooth.connectedThread.write("1");
-                        }
+                    break;
+            }
+
+        }
+    };
+
+    private class BtBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            if (D) Log.d(TAG, "Got broadcast");
+
+            int id = 0;
+            String line = "";
+
+            if (intent.hasExtra(BtConnectThread.BT_NEW_DATA_INTENT_EXTRA_BT_DATA)) {
+                line = intent.getStringExtra(BtConnectThread.BT_NEW_DATA_INTENT_EXTRA_BT_DATA);
+                id = intent.getIntExtra(BtConnectThread.BT_NEW_DATA_INTENT_EXTRA_BT_DATA_STREAM_ID, 0);
+
+            } else {
+                if (D) Log.d(TAG, "Broadcast had an unknown extra, add code to handle it...");
+            }
+
+            //This switch method, is what shows the realtime data in the editText.
+            switch(id){
+                case BT_DEVICE_ID:
+                    if(click1 == 1 && click2 == 1){
+                        textView.setText(line);
                     }
-                break;
-                }
-
-        }
-
-
-    /*public void begin(View view){
-        System.out.println("Its running");
-        Runnable runnable = new Runnable(){
-
-            @Override
-            public void run() {
-                while(true){
-                    thread.start();
-                    try{
-                        byte buffer[];
-                        buffer = new byte[1024];
-
-                        int bytes = inputStream.read(buffer);
-                        //if(bytes > 0){
-                        TextView txtView = (TextView) findViewById(R.id.textView7);
-                        txtView.setText(bytes);
-                        //}
-                    }catch (IOException e){
-                        displayExceptionMessage(e.getMessage());
-                    }
-                }
+                    break;
             }
-        };
-        thread = new Thread(runnable);
 
-    }*/
-
-    /*public void onResume(){
-        super.onResume();
-
-        BluetoothDevice bluetoothDevice = bluetoothAdapter.getRemoteDevice(macaddress);
-
-        try{
-            bluetoothSocket = bluetoothDevice.createRfcommSocketToServiceRecord(MY_UUID);
-        }catch(IOException ioException){
-            ioException.printStackTrace();
-            displayExceptionMessage(ioException.getMessage());
-        }
-
-        try{
-            bluetoothSocket.connect();
-        }catch (IOException e){
-            try{
-                bluetoothSocket.close();
-            }catch(IOException e1){
-                displayExceptionMessage(e1.getMessage());
-            }
-        }
-
-        try{
-            outputStream = bluetoothSocket.getOutputStream();
-            inputStream = bluetoothSocket.getInputStream();
-
-        }catch(IOException e){
-            displayExceptionMessage(e.getMessage());
-        }
-    }*/
-/*
-    public void listen(){
-
-        while(true){
-            thread.start();
-            try{
-                byte buffer[];
-                buffer = new byte[1024];
-
-                int bytes = inputStream.read(buffer);
-                //if(bytes > 0){
-                    TextView txtview = (TextView) findViewById(R.id.textView7);
-                    txtview.setText(bytes);
-                //}
-            }catch (IOException e){
-                displayExceptionMessage(e.getMessage());
-            }
-        }
-    }*/
-
-    public void BTState(){
-        if(bluetoothAdapter == null){
-            Toast.makeText(this,"BluetoothAdapter is unabled",Toast.LENGTH_SHORT).show();
-        }else{
-            Toast.makeText(this,"BluetoothAdapter is Active",Toast.LENGTH_SHORT).show();
         }
     }
-
-/*
-    private void sendData(String message) {
-    byte[] msgBuffer = message.getBytes();
-    try {
-      outputStream.write(msgBuffer);
-     } catch (IOException e) {
-        String msg = "In onResume() and an exception occurred during write: " + e.getMessage();
-     if (macaddress.equals("00:00:00:00:00:00"))
-             msg = msg + ".\n\nUpdate your server address from 00:00:00:00:00:00 to the correct address on line 37 in the java code";
-        msg = msg + ".\n\nCheck that the SPP UUID: " + MY_UUID.toString() + " exists on server.\n\n";
-        displayExceptionMessage("Fatal Error");
-    }
- }
-*/
-
-    public void displayExceptionMessage(String message){
-        Toast.makeText(this, message,Toast.LENGTH_SHORT).show();
-    }
-
-
-
 }
+
+
+

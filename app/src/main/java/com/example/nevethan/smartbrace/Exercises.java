@@ -8,22 +8,26 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+/*
+    The main purpose of the class/feature is to show the use of a custom Listview.
+    The view contains an Image and a title to the image.
+ */
 public class Exercises extends AppCompatActivity {
 
     ListView listView;
 
-    String[] web = {
-            "Exercise 1",
-            "Exercise 2",
-            "Exercise 3"
+    String[] titles = {
+            "Squat",
+            "Knee Stabilization",
+            "Quadriceps Stretch,",
+            "Side Lying Leg Lift"
     };
 
     Integer[] imageId = {
-            R.drawable.bluetooth,
-            R.drawable.bluetooth,
-            R.drawable.bluetooth,
-            //R.drawable.image2,
-            //R.drawable.image3
+            R.drawable.squat,
+            R.drawable.knee_stabilization,
+            R.drawable.quadriceps_stretch,
+            R.drawable.side_lying_leg_lift
     };
 
 
@@ -32,8 +36,8 @@ public class Exercises extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_exercises);
 
-        //CustomList customList = new CustomList(Exercises.this, web, imageId);
-        ListAdapter listAdapter = new CustomList(this, web, imageId);
+
+        ListAdapter listAdapter = new CustomList(this, titles, imageId);
         listView = (ListView) findViewById(R.id.listView);
         listView.setAdapter(listAdapter);
 
@@ -41,7 +45,7 @@ public class Exercises extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                Toast.makeText(Exercises.this, "You Clicked at " + web[+position], Toast.LENGTH_SHORT).show();
+                Toast.makeText(Exercises.this, "You Clicked at " + titles[+position], Toast.LENGTH_SHORT).show();
             }
         });
     }

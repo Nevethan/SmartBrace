@@ -6,6 +6,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+
+/*
+    This class contains all training programs. The purpose of this class is to demonstrate a Listview
+ */
 public class TrainingPrograms extends AppCompatActivity {
 
     @Override
